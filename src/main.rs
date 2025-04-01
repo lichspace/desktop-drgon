@@ -16,6 +16,8 @@ use druid::{AppLauncher, Color, ImageBuf, Lens, WindowDesc};
 use image::ImageReader;
 use std::io::Cursor;
 use std::time::Duration;
+use stock::fetch_stock_data;
+mod stock;
 
 #[derive(Clone, Data, Lens)]
 struct HelloState {
@@ -86,7 +88,8 @@ impl<W: Widget<HelloState>> Controller<HelloState, W> for TimeUpdater {
     }
 }
 
-pub fn main() {
+#[tokio::main]
+pub async fn main() {
     let window = WindowDesc::new(build_root_widget())
         .show_titlebar(false)
         .window_size((300., 360.))
@@ -94,6 +97,9 @@ pub fn main() {
         .transparent(true)
         .resizable(false)
         .title("Transparent background");
+    println!("-----------");
+
+    fetch_stock_data().await.unwrap();
 
     AppLauncher::with_window(window)
         .log_to_console()

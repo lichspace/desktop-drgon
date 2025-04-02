@@ -8,6 +8,7 @@
 #![windows_subsystem = "windows"]
 
 use chrono::Local;
+use druid::text::FontDescriptor;
 use druid::widget::prelude::*;
 use druid::widget::Controller;
 use druid::widget::{Flex, Image, Label, WidgetExt};
@@ -23,6 +24,7 @@ mod stock;
 struct HelloState {
     name: String,
     current_time: String, // Add a field for the current time
+    stock: String,
 }
 
 struct DragController;
@@ -64,7 +66,7 @@ impl<W: Widget<HelloState>> Controller<HelloState, W> for TimeUpdater {
         env: &Env,
     ) {
         if let LifeCycle::WidgetAdded = event {
-            self.timer = ctx.request_timer(Duration::from_secs(1));
+            self.timer = ctx.request_timer(Duration::from_secs(1)); // 每秒更新时间
         }
         child.lifecycle(ctx, event, data, env);
     }
@@ -79,9 +81,17 @@ impl<W: Widget<HelloState>> Controller<HelloState, W> for TimeUpdater {
     ) {
         if let Event::Timer(id) = event {
             if *id == self.timer {
+                // 更新当前时间
                 data.current_time = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+
+                // 每 30 秒刷新股票数据
+                if Local::now().timestamp() % 30 == 0 {
+                    let stock = stock::fetch_stock_data();
+                    data.stock = stock;
+                }
+
                 ctx.request_update();
-                self.timer = ctx.request_timer(Duration::from_secs(1));
+                self.timer = ctx.request_timer(Duration::from_secs(1)); // 每秒触发一次
             }
         }
         child.event(ctx, event, data, env);
@@ -91,21 +101,19 @@ impl<W: Widget<HelloState>> Controller<HelloState, W> for TimeUpdater {
 pub fn main() {
     let window = WindowDesc::new(build_root_widget())
         .show_titlebar(false)
-        .window_size((300., 360.))
+        .window_size((180., 240.))
         .set_always_on_top(true)
         .transparent(true)
         .resizable(false)
         .title("Transparent background");
-    println!("-----------");
 
     let stock = fetch_stock_data();
-
-    println!("0700.HK {}", stock.close);
 
     AppLauncher::with_window(window)
         .log_to_console()
         .launch(HelloState {
             name: "".into(),
+            stock: stock,
             current_time: Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
         })
         .expect("launch failed");
@@ -132,10 +140,18 @@ fn build_root_widget() -> impl Widget<HelloState> {
 
     // 创建 Druid 的 Image 小部件
     let image = Image::new(image_buf);
-
+    // 加载自定义字体
+    let font = FontDescriptor::new(druid::FontFamily::MONOSPACE);
     let time_label = Label::new(|data: &HelloState, _env: &Env| format!("{}", data.current_time))
         .with_text_color(Color::YELLOW)
-        .with_text_size(30.0)
+        .with_font(font.clone())
+        .with_text_size(16.0)
+        .background(Color::rgba8(0, 0, 0, 128));
+
+    let stock_label = Label::new(|data: &HelloState, _env: &Env| format!("{}", data.stock))
+        .with_text_color(Color::GREEN)
+        .with_font(font)
+        .with_text_size(16.0)
         .background(Color::rgba8(0, 0, 0, 128));
 
     // 布局
@@ -143,6 +159,8 @@ fn build_root_widget() -> impl Widget<HelloState> {
         .with_child(image)
         .with_spacer(4.0)
         .with_child(time_label)
+        .with_spacer(4.0)
+        .with_child(stock_label)
         .with_spacer(4.0)
         .controller(DragController)
         .controller(TimeUpdater::new())

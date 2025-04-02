@@ -88,8 +88,7 @@ impl<W: Widget<HelloState>> Controller<HelloState, W> for TimeUpdater {
     }
 }
 
-#[tokio::main]
-pub async fn main() {
+pub fn main() {
     let window = WindowDesc::new(build_root_widget())
         .show_titlebar(false)
         .window_size((300., 360.))
@@ -99,7 +98,9 @@ pub async fn main() {
         .title("Transparent background");
     println!("-----------");
 
-    fetch_stock_data().await.unwrap();
+    let stock = fetch_stock_data();
+
+    println!("0700.HK {}", stock.close);
 
     AppLauncher::with_window(window)
         .log_to_console()

@@ -1,12 +1,13 @@
-use yahoo_finance_api::{self as yahoo, Quote};
+use yahoo_finance_api as yahoo;
 use tokio_test;
 
-pub fn fetch_stock_data() -> Quote {
+fn main() {
     let provider = yahoo::YahooConnector::new().unwrap();
     // get the latest quotes in 1 minute intervals
     let response = tokio_test::block_on(provider.get_latest_quotes("0700.HK", "1d")).unwrap();
     // extract just the latest valid quote summery
     // including timestamp,open,close,high,low,volume
     let quote = response.last_quote().unwrap();
-    return  quote;
+
+    println!("At {:?}", quote);
 }

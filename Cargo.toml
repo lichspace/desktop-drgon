@@ -7,6 +7,6 @@ edition = "2021"
 chrono = "0.4.40"
 druid = "0.8.3"
 image = "0.25.6"
-reqwest = "0.12.15"
 serde_json = "1.0.140"
-tokio = { version = "1.44.1",  features = ["full"] }
+tokio-test = "0.4.4"
+yahoo_finance_api = "3.0.0"

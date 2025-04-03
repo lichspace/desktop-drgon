@@ -11,7 +11,7 @@ use chrono::Local;
 use druid::text::FontDescriptor;
 use druid::widget::prelude::*;
 use druid::widget::Controller;
-use druid::widget::{Flex, Image, Label, WidgetExt};
+use druid::widget::{Container, Flex, Image, Label, WidgetExt};
 use druid::TimerToken;
 use druid::{AppLauncher, Color, ImageBuf, Lens, WindowDesc};
 use image::ImageReader;
@@ -140,27 +140,37 @@ fn build_root_widget() -> impl Widget<HelloState> {
 
     // 创建 Druid 的 Image 小部件
     let image = Image::new(image_buf);
+
     // 加载自定义字体
     let font = FontDescriptor::new(druid::FontFamily::MONOSPACE);
+
+    // 创建时间标签
     let time_label = Label::new(|data: &HelloState, _env: &Env| format!("{}", data.current_time))
         .with_text_color(Color::YELLOW)
         .with_font(font.clone())
-        .with_text_size(16.0)
-        .background(Color::rgba8(0, 0, 0, 128));
+        .with_text_size(16.0);
 
+    // 创建股票标签
     let stock_label = Label::new(|data: &HelloState, _env: &Env| format!("{}", data.stock))
         .with_text_color(Color::GREEN)
         .with_font(font)
-        .with_text_size(16.0)
-        .background(Color::rgba8(0, 0, 0, 128));
+        .with_text_size(16.0);
+
+    // 将两个标签放入一个 Flex 布局
+    let labels = Flex::column()
+        .with_child(time_label)
+        .with_spacer(4.0)
+        .with_child(stock_label);
+
+    // 用 Container 包裹标签，并设置背景颜色
+    let labeled_container = Container::new(labels)
+        .background(Color::rgba8(0, 0, 0, 128)) // 设置背景颜色
+        .padding(2.0); // 设置内边距
 
     // 布局
     Flex::column()
         .with_child(image)
-        .with_spacer(4.0)
-        .with_child(time_label)
-        .with_spacer(1.0)
-        .with_child(stock_label)
+        .with_child(labeled_container) 
         .with_spacer(4.0)
         .controller(DragController)
         .controller(TimeUpdater::new())

@@ -121,7 +121,7 @@ pub fn main() {
 
 fn build_root_widget() -> impl Widget<HelloState> {
     // 使用 image crate 加载图片
-    let image_data = include_bytes!("./dragon.png");
+    let image_data = include_bytes!("../assets/dragon.png");
     let img = ImageReader::new(Cursor::new(image_data))
         .with_guessed_format()
         .expect("Failed to read image")

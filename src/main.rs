@@ -101,7 +101,7 @@ impl<W: Widget<HelloState>> Controller<HelloState, W> for TimeUpdater {
 pub fn main() {
     let window = WindowDesc::new(build_root_widget())
         .show_titlebar(false)
-        .window_size((180., 240.))
+        .window_size((180., 300.))
         .set_always_on_top(true)
         .transparent(true)
         .resizable(false)
@@ -159,7 +159,7 @@ fn build_root_widget() -> impl Widget<HelloState> {
         .with_child(image)
         .with_spacer(4.0)
         .with_child(time_label)
-        .with_spacer(4.0)
+        .with_spacer(1.0)
         .with_child(stock_label)
         .with_spacer(4.0)
         .controller(DragController)

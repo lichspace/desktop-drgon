@@ -8,5 +8,5 @@ pub fn fetch_stock_data() -> String {
     // extract just the latest valid quote summery
     // including timestamp,open,close,high,low,volume
     let quote = response.last_quote().unwrap();
-    return  format!("0700.HK close: {}", quote.close);
+    return  format!(" 0700.HK {:.2} \n open: {:.2} \n high {:.2} \n low {:.2}", quote.close, quote.open, quote.high, quote.low);
 }
